@@ -1,4 +1,4 @@
-# SchdAI
+# SmartSchdAI
 
 #  AI-Powered Timetable Generator
 
