@@ -1,1 +1,231 @@
+<!DOCTYPE html>
+<html lang="en" class="light">
+<head>
+    <meta charset="UTF-8">
+    <title>SmartSched AI - University ERP</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = { darkMode: 'class' }
+    </script>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
+    <style>
+        body, aside, main, div, header { transition: background-color 0.3s, color 0.3s; }
+        @keyframes subtle-bounce {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(-5px); }
+        }
+        .animate-subtle-bounce { animation: subtle-bounce 2s infinite; }
+        
+        @keyframes slideIn {
+            from { transform: translateX(100%); opacity: 0; }
+            to { transform: translateX(0); opacity: 1; }
+        }
+        @keyframes fadeOut {
+            from { opacity: 1; }
+            to { opacity: 0; }
+        }
+        .toast-enter { animation: slideIn 0.3s ease-out forwards; }
+        .toast-exit { animation: fadeOut 0.3s ease-out forwards; }
+    </style>
+</head>
+<body class="bg-slate-100 dark:bg-slate-900 text-slate-800 dark:text-slate-200 font-sans h-screen flex overflow-hidden">
+    
+    <div id="toast-container" class="fixed top-5 right-5 z-[100] flex flex-col gap-3 pointer-events-none"></div>
 
+    <div id="loader-overlay" class="hidden fixed inset-0 bg-slate-900/80 backdrop-blur-md z-[150] flex flex-col items-center justify-center transition-opacity duration-300">
+        <div class="relative flex items-center justify-center mb-6">
+            <div class="absolute w-24 h-24 border-4 border-t-indigo-500 border-r-transparent border-b-indigo-500 border-l-transparent rounded-full animate-spin"></div>
+            <i class="fas fa-brain text-5xl text-indigo-400 animate-pulse"></i>
+        </div>
+        <h2 class="text-3xl font-black text-white tracking-widest uppercase mb-2 shadow-sm">SmartSched AI</h2>
+        <p id="loadingTip" class="text-indigo-200 font-semibold text-lg tracking-wide animate-pulse">Initializing quantum constraint solver...</p>
+    </div>
+
+    <aside class="w-[24rem] bg-white dark:bg-slate-800 shadow-2xl flex flex-col z-20 overflow-y-auto border-r border-slate-200 dark:border-slate-700">
+        <div class="p-6 bg-indigo-900 text-white flex items-center shadow-lg">
+            <div class="bg-white p-2 rounded-lg mr-3 shadow-sm"><i class="fas fa-brain text-xl text-indigo-900"></i></div>
+            <h1 class="text-2xl font-black tracking-tight">SmartSched <span class="text-yellow-400">AI</span></h1>
+        </div>
+        
+        <div class="p-5 border-b border-slate-100 dark:border-slate-700 bg-slate-50 dark:bg-slate-800">
+            <div class="bg-blue-100 dark:bg-blue-900/40 text-blue-900 dark:text-blue-200 px-3 py-2 rounded text-[11px] mb-3 font-semibold shadow-sm border border-blue-200 dark:border-blue-800"><i class="fas fa-info-circle mr-1"></i><b>Step 1:</b> Set your Term & Working Days</div>
+            <label class="text-xs font-bold text-slate-500 dark:text-slate-400 uppercase block mb-1">Academic Term</label>
+            <select id="semesterSelect" class="w-full border border-slate-300 dark:border-slate-600 rounded p-2 text-sm font-bold text-indigo-900 dark:text-indigo-300 bg-white dark:bg-slate-700 outline-none focus:ring-2 focus:ring-indigo-500 shadow-sm mb-4 transition">
+                <option value="even">Even Semester (2, 4, 6, 8)</option>
+                <option value="odd">Odd Semester (1, 3, 5, 7)</option>
+            </select>
+            
+            <label class="text-xs font-bold text-slate-500 dark:text-slate-400 uppercase block mb-2">Active Working Days</label>
+            <div class="grid grid-cols-3 gap-2">
+                <label class="text-xs flex items-center cursor-pointer bg-white dark:bg-slate-700 px-2 py-1.5 rounded border border-slate-200 dark:border-slate-600 shadow-sm hover:bg-indigo-50 dark:hover:bg-slate-600 transition"><input type="checkbox" class="day-cb mr-2 form-checkbox text-indigo-600 h-4 w-4" value="Monday" checked>Mon</label>
+                <label class="text-xs flex items-center cursor-pointer bg-white dark:bg-slate-700 px-2 py-1.5 rounded border border-slate-200 dark:border-slate-600 shadow-sm hover:bg-indigo-50 dark:hover:bg-slate-600 transition"><input type="checkbox" class="day-cb mr-2 form-checkbox text-indigo-600 h-4 w-4" value="Tuesday" checked>Tue</label>
+                <label class="text-xs flex items-center cursor-pointer bg-white dark:bg-slate-700 px-2 py-1.5 rounded border border-slate-200 dark:border-slate-600 shadow-sm hover:bg-indigo-50 dark:hover:bg-slate-600 transition"><input type="checkbox" class="day-cb mr-2 form-checkbox text-indigo-600 h-4 w-4" value="Wednesday" checked>Wed</label>
+                <label class="text-xs flex items-center cursor-pointer bg-white dark:bg-slate-700 px-2 py-1.5 rounded border border-slate-200 dark:border-slate-600 shadow-sm hover:bg-indigo-50 dark:hover:bg-slate-600 transition"><input type="checkbox" class="day-cb mr-2 form-checkbox text-indigo-600 h-4 w-4" value="Thursday" checked>Thu</label>
+                <label class="text-xs flex items-center cursor-pointer bg-white dark:bg-slate-700 px-2 py-1.5 rounded border border-slate-200 dark:border-slate-600 shadow-sm hover:bg-indigo-50 dark:hover:bg-slate-600 transition"><input type="checkbox" class="day-cb mr-2 form-checkbox text-indigo-600 h-4 w-4" value="Friday" checked>Fri</label>
+                <label class="text-xs flex items-center cursor-pointer bg-white dark:bg-slate-700 px-2 py-1.5 rounded border border-slate-200 dark:border-slate-600 shadow-sm hover:bg-indigo-50 dark:hover:bg-slate-600 transition"><input type="checkbox" class="day-cb mr-2 form-checkbox text-indigo-600 h-4 w-4" value="Saturday" checked>Sat</label>
+            </div>
+        </div>
+
+        <div class="p-5 border-b border-slate-100 dark:border-slate-700">
+            <div class="bg-blue-100 dark:bg-blue-900/40 text-blue-900 dark:text-blue-200 px-3 py-2 rounded text-[11px] mb-3 font-semibold shadow-sm border border-blue-200 dark:border-blue-800"><i class="fas fa-info-circle mr-1"></i><b>Step 2:</b> Select total periods and designate Breaks.</div>
+            <label class="text-xs font-bold text-slate-500 dark:text-slate-400 uppercase block mb-1">Total Periods Per Day</label>
+            <select id="numSlots" onchange="renderSlotSettings()" class="w-full border border-slate-300 dark:border-slate-600 rounded p-2 text-sm font-bold text-indigo-900 dark:text-indigo-300 bg-slate-50 dark:bg-slate-700 outline-none focus:ring-2 focus:ring-indigo-500 mb-3 shadow-sm transition">
+                <option value="6">6 Periods</option>
+                <option value="7">7 Periods</option>
+                <option value="8" selected>8 Periods</option>
+            </select>
+            <div id="slotSettingsContainer" class="p-3 bg-slate-50 dark:bg-slate-900 rounded-lg border border-slate-200 dark:border-slate-700 shadow-inner"></div>
+        </div>
+
+        <nav class="flex flex-col border-b border-slate-100 dark:border-slate-700">
+            <button onclick="switchTab('config')" id="tabBtn-config" class="px-6 py-4 text-left font-black text-indigo-700 dark:text-indigo-300 bg-indigo-50 dark:bg-indigo-900/30 border-l-4 border-indigo-600 transition shadow-sm w-full"><i class="fas fa-sliders-h w-6"></i> Configuration Hub</button>
+            <button onclick="switchTab('division')" id="tabBtn-division" class="px-6 py-4 text-left font-bold text-slate-600 dark:text-slate-400 hover:bg-slate-50 dark:hover:bg-slate-700 transition border-l-4 border-transparent w-full"><i class="fas fa-table w-6"></i> View Timetable Matrix</button>
+        </nav>
+
+        <div class="p-5 border-b border-slate-100 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 flex space-x-2">
+            <button onclick="saveToDatabase()" class="w-1/2 bg-indigo-600 text-white py-2.5 rounded-lg font-bold text-xs hover:bg-indigo-700 active:scale-95 transition shadow"><i class="fas fa-cloud-upload-alt mr-1"></i>Save State</button>
+            <button onclick="loadFromDatabase()" class="w-1/2 bg-slate-800 dark:bg-slate-600 text-white py-2.5 rounded-lg font-bold text-xs hover:bg-slate-900 dark:hover:bg-slate-500 active:scale-95 transition shadow"><i class="fas fa-cloud-download-alt mr-1"></i>Load State</button>
+        </div>
+        
+        <div class="p-5 mt-auto space-y-2 bg-slate-100 dark:bg-slate-800 border-t border-slate-200 dark:border-slate-700">
+            <label class="text-[10px] font-black text-slate-500 dark:text-slate-400 uppercase block tracking-wider"><i class="fas fa-flask mr-1"></i>Test Suites (Auto-Fills Form)</label>
+            <button onclick="loadDemo('dense')" class="w-full bg-emerald-100 dark:bg-emerald-900/40 text-emerald-800 dark:text-emerald-300 py-2.5 rounded-lg font-bold text-xs hover:bg-emerald-200 dark:hover:bg-emerald-800/60 active:scale-95 transition shadow-sm border border-emerald-200 dark:border-emerald-800">1. Load Perfect Dense (0 Gaps)</button>
+            <button onclick="loadDemo('sparse')" class="w-full bg-purple-100 dark:bg-purple-900/40 text-purple-800 dark:text-purple-300 py-2.5 rounded-lg font-bold text-xs hover:bg-purple-200 dark:hover:bg-purple-800/60 active:scale-95 transition shadow-sm border border-purple-200 dark:border-purple-800">2. Load Sparse (Free Lecs Test)</button>
+            <button onclick="loadDemo('error')" class="w-full bg-red-100 dark:bg-red-900/40 text-red-800 dark:text-red-300 py-2.5 rounded-lg font-bold text-xs hover:bg-red-200 dark:hover:bg-red-800/60 active:scale-95 transition shadow-sm border border-red-200 dark:border-red-800">3. Load Overload Error Test</button>
+        </div>
+    </aside>
+
+    <main class="flex-grow flex flex-col h-screen overflow-hidden bg-slate-200 dark:bg-slate-950 border-l border-slate-300 dark:border-slate-800 relative">
+        <header class="bg-white dark:bg-slate-800 border-b border-slate-200 dark:border-slate-700 p-4 flex justify-between items-center shadow-sm z-10 flex-shrink-0">
+            <h2 class="text-xl font-black text-slate-800 dark:text-slate-100 tracking-tight">System Configuration Matrix</h2>
+            <div class="flex items-center space-x-5">
+                <button onclick="toggleDarkMode()" class="text-slate-400 hover:text-indigo-500 dark:hover:text-yellow-400 transition text-2xl hover:rotate-12 transform" title="Toggle Dark Mode"><i class="fas fa-moon dark:hidden"></i><i class="fas fa-sun hidden dark:block"></i></button>
+                <button onclick="generateTimetable()" class="bg-indigo-600 hover:bg-indigo-700 text-white px-8 py-3 rounded-lg font-black shadow-lg transition transform hover:-translate-y-1 active:translate-y-0 active:scale-95 border border-indigo-800"><i class="fas fa-bolt mr-2 text-yellow-300"></i> Generate AI Schedule</button>
+            </div>
+        </header>
+
+        <div id="tab-config" class="p-6 flex-grow overflow-y-auto flex space-x-6 pb-20">
+            <div class="w-1/3 flex flex-col space-y-6">
+                <div class="bg-white dark:bg-slate-800 p-6 rounded-2xl shadow-xl border border-slate-200 dark:border-slate-700 transition-all hover:shadow-2xl">
+                    <h3 class="font-black text-indigo-900 dark:text-indigo-300 mb-4 border-b border-slate-100 dark:border-slate-700 pb-2 text-lg">3. University Classes</h3>
+                    <div class="bg-blue-50 dark:bg-blue-900/30 text-blue-800 dark:text-blue-200 p-3 rounded text-[11px] mb-4 font-semibold shadow-sm border border-blue-200 dark:border-blue-800"><i class="fas fa-info-circle mr-1"></i>Enter a Class (e.g. BX) and its Sections (e.g. BX1, BX2).</div>
+                    <div class="flex space-x-2 mb-3">
+                        <input type="text" id="divName" placeholder="Class (e.g. BX)" class="w-1/2 border border-slate-300 dark:border-slate-600 dark:bg-slate-700 rounded-lg p-2.5 text-sm font-semibold outline-none focus:ring-2 focus:ring-indigo-500 transition">
+                        <input type="text" id="divRoom" placeholder="Theory Room" class="w-1/2 border border-slate-300 dark:border-slate-600 dark:bg-slate-700 rounded-lg p-2.5 text-sm font-semibold outline-none focus:ring-2 focus:ring-indigo-500 transition">
+                    </div>
+                    <input type="text" id="divBatches" placeholder="Sections (e.g. BX1, BX2)" class="w-full border border-slate-300 dark:border-slate-600 dark:bg-slate-700 rounded-lg p-2.5 text-sm font-semibold outline-none focus:ring-2 focus:ring-indigo-500 mb-4 transition">
+                    <button onclick="saveDivision()" id="saveDivBtn" class="w-full bg-slate-800 dark:bg-slate-700 text-white py-3 rounded-lg font-bold text-sm hover:bg-slate-900 dark:hover:bg-slate-600 active:scale-95 transition shadow-md">Add Class</button>
+                    <div id="divisionList" class="mt-5 space-y-2"></div>
+                </div>
+            </div>
+
+            <div class="w-2/3 bg-white dark:bg-slate-800 p-6 rounded-2xl shadow-xl border border-slate-200 dark:border-slate-700 flex flex-col transition-all hover:shadow-2xl">
+                <h3 class="font-black text-indigo-900 dark:text-indigo-300 mb-4 border-b border-slate-100 dark:border-slate-700 pb-2 text-lg">4. Subject Resources</h3>
+                <div class="bg-blue-50 dark:bg-blue-900/30 text-blue-800 dark:text-blue-200 p-3 rounded text-[11px] mb-4 font-semibold shadow-sm border border-blue-200 dark:border-blue-800"><i class="fas fa-info-circle mr-1"></i>Add Subjects. Make sure you select which Class takes this subject at the bottom!</div>
+                <div class="bg-indigo-50 dark:bg-slate-700/50 p-5 rounded-xl grid grid-cols-12 gap-4 mb-6 border border-indigo-100 dark:border-slate-600 shadow-inner">
+                    <div class="col-span-4"><input type="text" id="subName" placeholder="Subject Name" class="w-full border border-slate-300 dark:border-slate-600 dark:bg-slate-800 rounded-lg p-2.5 text-sm font-bold text-indigo-900 dark:text-indigo-300 outline-none focus:ring-2 focus:ring-indigo-500 transition"></div>
+                    <div class="col-span-2"><select id="subType" class="w-full border border-slate-300 dark:border-slate-600 dark:bg-slate-800 rounded-lg p-2.5 text-sm font-bold text-slate-700 dark:text-slate-300 outline-none focus:ring-2 focus:ring-indigo-500 transition"><option value="theory">Theory</option><option value="lab">Lab/Wshop</option></select></div>
+                    <div class="col-span-3"><input type="number" id="subLectures" placeholder="Lecs/Wk" class="w-full border border-slate-300 dark:border-slate-600 dark:bg-slate-800 rounded-lg p-2.5 text-sm font-bold outline-none focus:ring-2 focus:ring-indigo-500 transition" min="1"></div>
+                    <div class="col-span-3"><input type="number" id="subDuration" placeholder="Duration" value="1" class="w-full border border-slate-300 dark:border-slate-600 dark:bg-slate-800 rounded-lg p-2.5 text-sm font-bold outline-none focus:ring-2 focus:ring-indigo-500 transition" min="1"></div>
+                    <div class="col-span-6"><input type="text" id="subTeachers" placeholder="Teachers (comma separated)" class="w-full border border-slate-300 dark:border-slate-600 dark:bg-slate-800 rounded-lg p-2.5 text-sm font-semibold outline-none focus:ring-2 focus:ring-indigo-500 transition"></div>
+                    <div class="col-span-6"><input type="text" id="subRooms" placeholder="Specific Rooms (for labs)" class="w-full border border-slate-300 dark:border-slate-600 dark:bg-slate-800 rounded-lg p-2.5 text-sm font-semibold outline-none focus:ring-2 focus:ring-indigo-500 transition"></div>
+                    <div class="col-span-12 border border-slate-200 dark:border-slate-600 rounded-lg p-3 bg-white dark:bg-slate-800 shadow-sm">
+                        <label class="text-xs font-black text-slate-500 dark:text-slate-400 block mb-2 uppercase tracking-wide">Target Classes</label>
+                        <div id="targetDivContainer" class="flex flex-wrap gap-2 text-sm"><span class="text-xs text-slate-400 italic">Add a Class in Step 3 first</span></div>
+                    </div>
+                    <button onclick="saveSubject()" id="saveSubBtn" class="col-span-12 bg-indigo-900 dark:bg-indigo-700 text-white py-3 rounded-lg font-black text-sm hover:bg-indigo-800 dark:hover:bg-indigo-600 shadow-md active:scale-95 transition">Add Subject</button>
+                </div>
+                <div class="flex-grow overflow-auto border border-slate-200 dark:border-slate-600 rounded-xl shadow-sm min-h-[250px] bg-white dark:bg-slate-900">
+                    <table class="w-full text-left text-sm">
+                        <thead class="bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-300 font-black sticky top-0 shadow-sm"><tr><th class="p-4">Subject</th><th class="p-4">Targets & Teachers</th><th class="p-4 text-center w-32">Action</th></tr></thead>
+                        <tbody id="subjectTableBody" class="divide-y divide-slate-100 dark:divide-slate-700"></tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+        <div id="tab-division" class="hidden p-6 flex-grow flex flex-col min-h-0 pb-12">
+            <div class="mb-4 flex justify-between items-center bg-white dark:bg-slate-800 p-4 rounded-2xl shadow-md border border-slate-200 dark:border-slate-700 flex-shrink-0 z-10">
+                <div class="flex space-x-4 items-center">
+                    <div class="bg-indigo-100 dark:bg-indigo-900/50 text-indigo-800 dark:text-indigo-200 px-3 py-2 rounded-lg font-black text-sm border border-indigo-200 dark:border-indigo-800"><i class="fas fa-eye mr-2"></i>Select View:</div>
+                    <select id="viewType" onchange="updateViewDropdowns(); renderTimetable();" class="border border-slate-300 dark:border-slate-600 rounded-lg p-2.5 font-bold text-indigo-900 dark:text-indigo-300 bg-white dark:bg-slate-700 outline-none focus:ring-2 focus:ring-indigo-500 shadow-sm cursor-pointer transition hover:border-indigo-400">
+                        <option value="class">Class Overview (Admin)</option>
+                        <option value="batch">Section Detail (Student)</option>
+                        <option value="teacher">Faculty Schedule (Teacher)</option>
+                    </select>
+                    <select id="viewTarget" onchange="renderTimetable()" class="border border-slate-300 dark:border-slate-600 rounded-lg p-2.5 font-bold text-indigo-900 dark:text-indigo-300 bg-white dark:bg-slate-700 outline-none focus:ring-2 focus:ring-indigo-500 min-w-[200px] shadow-sm cursor-pointer transition hover:border-indigo-400"></select>
+                </div>
+                
+                <div class="flex space-x-3">
+                    <button onclick="showAnalytics()" class="bg-blue-500 hover:bg-blue-600 text-white px-5 py-2.5 rounded-lg font-black shadow-md active:scale-95 transition border border-blue-700"><i class="fas fa-chart-pie mr-2"></i>Analytics</button>
+                    <button onclick="downloadCSV()" class="bg-emerald-600 hover:bg-emerald-700 text-white px-5 py-2.5 rounded-lg font-black shadow-md active:scale-95 transition border border-emerald-800"><i class="fas fa-file-excel mr-2"></i>Excel</button>
+                    <button onclick="downloadPDF()" class="bg-red-600 hover:bg-red-700 text-white px-5 py-2.5 rounded-lg font-black shadow-md active:scale-95 transition border border-red-800"><i class="fas fa-file-pdf mr-2"></i>PDF</button>
+                </div>
+            </div>
+            
+            <div class="bg-white dark:bg-slate-800 rounded-2xl shadow-xl flex-grow flex flex-col min-h-0 overflow-hidden border border-slate-300 dark:border-slate-700 relative">
+                
+                <div id="emptyState" class="absolute inset-0 flex flex-col items-center justify-center bg-white dark:bg-slate-800 z-20">
+                    <div class="bg-slate-100 dark:bg-slate-700 p-6 rounded-full mb-6 shadow-inner">
+                        <i class="fas fa-calendar-alt text-6xl text-slate-300 dark:text-slate-500"></i>
+                    </div>
+                    <h3 class="text-2xl font-black text-slate-600 dark:text-slate-300 tracking-tight">No Timetable Generated</h3>
+                    <p class="text-slate-400 dark:text-slate-500 mt-2 max-w-md text-center">Go to the Configuration Hub, set up your classes and subjects, and click "Generate AI Schedule" to see the magic happen.</p>
+                </div>
+
+                <div id="div-pdf-container" class="p-8 flex-grow overflow-y-auto pb-16 dark:bg-slate-800">
+                    <div id="pdfHeaderDiv" class="hidden text-center mb-8 border-b-2 border-indigo-900 dark:border-indigo-400 pb-4">
+                        <h2 class="text-3xl font-black text-indigo-900 dark:text-indigo-300 uppercase tracking-widest">Official Timetable</h2>
+                        <p id="pdfDivSubtitle" class="text-xl font-bold text-slate-600 dark:text-slate-400 mt-2"></p>
+                    </div>
+                    <div class="rounded-xl border border-slate-300 dark:border-slate-600 shadow-md overflow-hidden mb-10">
+                        <table class="w-full text-left border-collapse" id="exportTable">
+                            <thead id="divTableHead" class="bg-indigo-900 dark:bg-indigo-950 text-white"></thead>
+                            <tbody id="divTableBody"></tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <button onclick="document.getElementById('chatbotModal').classList.remove('hidden')" class="fixed bottom-8 right-8 bg-gradient-to-r from-indigo-600 to-purple-600 hover:from-indigo-700 hover:to-purple-700 text-white w-16 h-16 rounded-full shadow-2xl flex items-center justify-center text-2xl transition transform hover:scale-110 animate-subtle-bounce z-40 border-4 border-white dark:border-slate-800">
+            <i class="fas fa-robot"></i>
+        </button>
+    </main>
+
+    <div id="analyticsModal" class="hidden fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-50 flex items-center justify-center transition-opacity">
+        <div class="bg-white dark:bg-slate-800 w-[500px] rounded-2xl shadow-2xl border border-slate-200 dark:border-slate-700 flex flex-col max-h-[80vh]">
+            <div class="p-5 border-b border-slate-200 dark:border-slate-700 flex justify-between items-center bg-indigo-50 dark:bg-indigo-900/30 rounded-t-2xl">
+                <h3 class="text-xl font-black text-indigo-900 dark:text-indigo-300"><i class="fas fa-chart-pie mr-2"></i>Faculty Workload</h3>
+                <button onclick="closeAnalytics()" class="text-slate-400 hover:text-red-500 transition text-2xl"><i class="fas fa-times"></i></button>
+            </div>
+            <div class="p-6 overflow-y-auto" id="analyticsContent"></div>
+        </div>
+    </div>
+
+    <div id="chatbotModal" class="hidden fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-50 flex items-center justify-center transition-opacity">
+        <div class="bg-white dark:bg-slate-800 w-[400px] rounded-2xl shadow-2xl border border-slate-200 dark:border-slate-700 flex flex-col overflow-hidden">
+            <div class="p-5 bg-gradient-to-r from-indigo-600 to-purple-600 text-white flex justify-between items-center">
+                <h3 class="text-lg font-black"><i class="fas fa-robot mr-2 text-yellow-300"></i>SmartSched AI</h3>
+                <button onclick="document.getElementById('chatbotModal').classList.add('hidden')" class="text-indigo-200 hover:text-white transition text-xl"><i class="fas fa-times"></i></button>
+            </div>
+            <div class="p-6 bg-slate-50 dark:bg-slate-900">
+                <div class="bg-white dark:bg-slate-800 p-4 rounded-xl shadow-sm border border-slate-200 dark:border-slate-700 mb-4">
+                    <p class="text-sm text-slate-600 dark:text-slate-300 leading-relaxed">👋 Hello! I am the SmartSched AI Assistant. Your backend constraint engine is fully operational.</p>
+                </div>
+                <div class="bg-indigo-50 dark:bg-indigo-900/30 p-5 rounded-xl shadow-sm border border-indigo-200 dark:border-indigo-800">
+                    <h4 class="font-bold text-indigo-900 dark:text-indigo-300 mb-3 text-sm flex items-center"><i class="fas fa-rocket mr-2"></i> Version 2.0 Roadmap</h4>
+                    <ul class="text-xs text-slate-600 dark:text-slate-400 space-y-3 list-disc pl-4">
+                        <li><strong>Live Chat UI:</strong> Generate timetables via natural language ("Schedule Math for BX1 on Monday").</li>
+                        <li><strong>Smart Substitution:</strong> If a Professor is absent, I will instantly suggest available faculty.</li>
+                        <li><strong>Drag & Drop Matrix:</strong> Visually rearrange classes directly on the generated grid.</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="{{ url_for('static', filename='script.js') }}"></script>
+</body>
+</html>
