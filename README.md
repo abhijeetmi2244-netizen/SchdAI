@@ -1,18 +1,18 @@
 # SchdAI
 
-# 🎓 AI-Powered Timetable Generator
+#  AI-Powered Timetable Generator
 
 An intelligent web-based timetable generator designed to automate and optimize the process of creating college schedules. This project helps generate conflict-free timetables by considering subjects, faculty availability, and time constraints.
 
 ---
 
-## 🚀 Overview
+##  Overview
 
 Creating a timetable manually is time-consuming and error-prone. This project simplifies the process by using smart logic (and optional AI features) to generate efficient and structured timetables in seconds.
 
 ---
 
-## ✨ Features
+##  Features
 
 - Automatic timetable generation  
 - Conflict-free scheduling (no overlapping classes)  
@@ -24,7 +24,7 @@ Creating a timetable manually is time-consuming and error-prone. This project si
 
 ---
 
-## 🛠️ Tech Stack
+##  Tech Stack
 
 - Frontend: HTML, CSS, JavaScript  
 - Backend: Python  
@@ -34,7 +34,7 @@ Creating a timetable manually is time-consuming and error-prone. This project si
 ---
 
 
-## 🧠 How It Works
+##  How It Works
 
 1. User inputs:
    - Subjects  
@@ -51,7 +51,7 @@ Creating a timetable manually is time-consuming and error-prone. This project si
 
 ---
 
-## 🎯 Use Cases
+##  Use Cases
 
 - Colleges & Universities  
 - School timetable automation  
@@ -60,7 +60,7 @@ Creating a timetable manually is time-consuming and error-prone. This project si
 
 ---
 
-## 🔮 Future Enhancements
+##  Future Enhancements
 
 - Drag-and-drop timetable editor  
 - Export as PDF/Excel  
