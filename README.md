@@ -63,7 +63,7 @@ Creating a timetable manually is time-consuming and error-prone. This project si
 ##  Future Enhancements
 
 - Drag-and-drop timetable editor  
-- Export as PDF/Excel  
+- Export as PDF & Excel  
 - Login system for students & faculty  
 - Real-time updates  
 - Advanced AI optimization  
