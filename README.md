@@ -33,39 +33,6 @@ Creating a timetable manually is time-consuming and error-prone. This project si
 
 ---
 
-## 📂 Project Structure
-
-timetable-generator/
-│── frontend/
-│   ├── index.html
-│   ├── style.css
-│   └── script.js
-│
-│── backend/
-│   ├── app.py
-│   └── solver.py
-│
-│── requirements.txt
-│── README.md
-
----
-
-## ⚙️ Installation & Setup
-
-1. Clone the repository
-git clone https://github.com/your-username/timetable-generator.git
-cd timetable-generator
-
-2. Install dependencies
-pip install -r requirements.txt
-
-3. Run the project
-python app.py
-
-4. Open your browser and go to:
-http://localhost:5000
-
----
 
 ## 🧠 How It Works
 
